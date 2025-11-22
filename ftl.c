@@ -897,20 +897,7 @@ static inline struct ppa get_maptbl_ent(struct ssd *ssd, uint64_t lpn)
 
     uint64_t tvpn = lpn / NUM_MAPPINGS_PER_PAGE;
     struct ppa dppn;
-    struct ctp_entry* ctp_curr = ctp_find_entry(tvpn);
-    if(ctp_curr != NULL) {
-        // femu_log("map table fetch CTP hit!\n");
-        dppn = ctp_curr->mp->dppn[lpn % NUM_MAPPINGS_PER_PAGE];
-        // if(dppn.ppa == 139866079756432) {
-        //     dppn.ppa = -1;
-        // }
-        if(ssd->maptbl[lpn].ppa != dppn.ppa) {
-            femu_log("[CTP HIT] map table fetch [ERROR]! lpn: %lu, maptbl: %lu, fetched: %lu\n", lpn, ssd->maptbl[lpn].ppa, dppn.ppa);
-            ftl_assert(0);
-        }
-        return dppn;
-    }
-    
+
     struct cmt_entry* cmt_curr = cmt_find_entry(lpn);
     if(cmt_curr != NULL) {
         // femu_log("map table fetch CMT hit!\n");
@@ -925,9 +912,23 @@ static inline struct ppa get_maptbl_ent(struct ssd *ssd, uint64_t lpn)
         return dppn;
     }
 
+    struct ctp_entry* ctp_curr = ctp_find_entry(tvpn);
+    if(ctp_curr != NULL) {
+        // femu_log("map table fetch CTP hit!\n");
+        dppn = ctp_curr->mp->dppn[lpn % NUM_MAPPINGS_PER_PAGE];
+        // if(dppn.ppa == 139866079756432) {
+        //     dppn.ppa = -1;
+        // }
+        if(ssd->maptbl[lpn].ppa != dppn.ppa) {
+            femu_log("[CTP HIT] map table fetch [ERROR]! lpn: %lu, maptbl: %lu, fetched: %lu\n", lpn, ssd->maptbl[lpn].ppa, dppn.ppa);
+            ftl_assert(0);
+        }
+        return dppn;
+    }
+    
+
     // femu_log("[Get Maptbl] map table fetch miss!\n");
     fetch_in(lpn);
-
 
     // check
     dppn = get_maptbl_ent(ssd, lpn);
