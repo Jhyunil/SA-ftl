@@ -215,6 +215,12 @@ struct ssd {
     // FEMU Intro & Add Command
     uint64_t        host_writes;
     uint64_t        gc_writes;
+
+    // CMT/CTP hit rate logging
+    uint64_t        cmt_hits;
+    uint64_t        ctp_hits;
+    uint64_t        cache_misses;
+    uint64_t        total_requests;
 };
 
 void ssd_init(FemuCtrl *n);

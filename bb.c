@@ -118,6 +118,18 @@ static uint16_t bb_get_log(FemuCtrl *n, NvmeCmd *cmd)
     uint64_t prp2 = le64_to_cpu(cmd->dptr.prp2);
     dma_read_prp(n, (uint8_t*)&waf, sizeof(waf), prp1, prp2);
 
+    // Cache hit rate logging
+    uint64_t cmt_hits = ssd->cmt_hits;
+    uint64_t ctp_hits = ssd->ctp_hits;
+    uint64_t cache_misses = ssd->cache_misses;
+    uint64_t total_requests = ssd->total_requests;
+    double cmt_hit_rate = 100 * ((double)cmt_hits / (total_requests ? total_requests : 1));
+    double ctp_hit_rate = 100 * ((double)ctp_hits / (total_requests ? total_requests : 1));
+    double cache_miss_rate = 100 * ((double)cache_misses / (total_requests ? total_requests : 1));
+    femu_log("Cache Hit Rate Log: \nCMT Hits=%lu, \nCTP Hits=%lu, \nCache Misses=%lu, \nTotal Requests=%lu, \nCMT Hit Rate=%.2lf%%, \nCTP Hit Rate=%.2lf%%, \nCache Miss Rate=%.2lf%%\n",
+            cmt_hits, ctp_hits, cache_misses, total_requests,
+            cmt_hit_rate, ctp_hit_rate, cache_miss_rate);
+
     return NVME_SUCCESS;
 }
 
