@@ -598,7 +598,10 @@ void map_garbage_collection(void)
             struct cmt_entry* cmt_curr = cmt_find_entry(dvpn);
             if(cmt_curr != NULL && cmt_curr->data.dirty) {
                 data_ptr[j] = cmt_curr->data.dppn.ppa;
+                if(ctp_curr != NULL) 
+                    ctp_curr->mp->dppn[j].ppa = data_ptr[j];
                 cmt_curr->data.dirty = false;
+                
                 if (flag == 1) {
                     femu_log("[ERROR] map gc error! cmt and ctp both dirty bit set\n");
                     ftl_assert(0);       
